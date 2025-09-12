@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mysql
+    environment: production
+    tier: database
+    version: "8.0"
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: mysql
+    tier: database
+  type: ClusterIP
+
+
+--- #********ADD THIS TO HAVE MULTIPLE RESSOURCES IN 1 .YAML FILE***********
+
+
+
+#Header - apiVersion, kind
+apiVersion: apps/v1
+kind: Deployment
+
+metadata: #Metadata about the deployment - information about manifest file
+  name: mysql-deployment
+  labels:
+    app: mysql
+    tier: database
+    version: "8.0"
+    environment: production
+ 
+  annotations:  #Annotations are longer labels
+    description: "MySQL database deployment for production env"
+    maintainer: "DBA DevOps - louuesakina84"
+    documentation: "https://docs.newer.com/dmysql-deployment"
+  finalizers:
+    - foregroundDeletion
+
+
+spec: #Specification of the deployment
+  replicas: 1 #Numb of pod to maintain
+  #Any time we update keep track of changes after the 10th revision
+  #This is useful for rollback
+  revisionHistoryLimit: 10
+  strategy: #Strategy for updating the deployment
+    #Rolling update strategy
+    type: 
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  #tell container what to maintain
+  selector:
+    matchLabels:
+      #look for an app whose container label is mysql
+      app: mysql
+      tier: database
+
+  template: #Template for the pod
+  #Specification of the pod template
+    metadata:
+      labels:
+        app: mysql
+        tier: database
+        version: "8.0"
+        environment: production
+      annotations:
+        monitoring: "true"
+    spec: #Specification for pod template
+      #Pod security context - restricts users
+      securityContext:
+        #User and group IDs for the pod
+        runAsUser: 999
+        runAsGroup: 999
+        runAsNonRoot: true
+        fsGroup: 999
+      containers:
+      - name: mysql
+        image: mysql:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: #Use value from ConfigMap
+            secretKeyRef: #Use secret key reference
+              name: mysql-secret
+              key: root-password #At runtime this value will be replaced       
+        - name: MYSQL_PASSWORD
+          valueFrom: #Use value from ConfigMap
+            secretKeyRef: #Use secret key reference
+              name: mysql-secret
+              key: mysql-password #key that holds password
+
+#Adding key refference to the ConfigMap
+
+        - name: MYSQL_DATABASE
+          valueFrom: #Use value from ConfigMap
+            configMapKeyRef:
+              name: mysqlconfig
+              key: DB_NAME #At runtime this value will be replaced
+        - name: MYSQL_USER
+          valueFrom: #Use value from ConfigMap
+            configMapKeyRef:
+              name: mysqlconfig #Name of the ConfigMap NOT THE NAME OF THE CONFIGMAP MNIFEST .YAML FILE
+              key: USER #Key in the ConfigMap
+
+        ports:
+          - name: mysql
+            containerPort: 3306
+            protocol: TCP
+        resources: 
+          requests:
+            memory: "512Mi" #At start ps.1Gi = 1000Mb
+            cpu: "250m" #500m = 0.5 CPU ps. m=milliCPU - stay at minikue level
+          limits: #Can't got beyond these resources
+            memory: "1Gi"
+            cpu: "500m" #1 CPU
+        livenessProbe: #Check if the app runing as should - ping/test container
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - "mysqladmin ping -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD" #ping mysql server
+            #p$MYSQL_ROOT_PASSWORD #refference mySQL root password set above
+          initialDelaySeconds: 30 #Wait 30 seconds after cont starts to start probing
+          periodSeconds: 10 #run thr probe every 10 seconds thereafter
+          timeoutSeconds: 5 #Each probe must finish within 5s or count as failed
+          failureThreshold: 3 #Aletr 3 consecutive failures, cont considered unhealthy n restarted
+        readinessProbe: #Check if the app is ready to accept traffic
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 10
+          periodSeconds: 10 
+          timeoutSeconds: 5 
+          failureThreshold: 3 
+
+#Storage Sections - we need to learn objects that are related to storage(StorageClass, Persistent Volume and Persistent Volume Claim)      

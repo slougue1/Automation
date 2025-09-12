@@ -1,0 +1,118 @@
+#phpmyadmin service
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: phpmyadmin
+    environment: production
+    tier: admin
+    version: "8.0"
+  name: phpmyadmin
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: phpmyadmin
+    tier: admin
+  type: LoadBalancer
+
+--- 
+
+#phpmyadmin Deployment
+
+apiVersion: apps/v1
+kind: Deployment
+
+#metadata
+metadata:
+  name: phpmyadmin-deployment
+  labels:
+    app: phpmyadmin
+    tier: admin
+    version: "8.0"
+    environment: production
+  annotations:
+    description: "phpmyadmin admin deployment"
+    maintainer:  "DevOps - louguesakina84@gmail.com"
+    documentation: "https://docs.gmail.com/phpmyadmin-deployment"
+  finalizers:
+    - foregroundDeletion
+  
+#Deployment specification section
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: 
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+      tier: admin
+  template:  #The template to create our pod
+    metadata:
+      labels:
+        app: phpmyadmin
+        tier: admin
+        version: "8.0"
+        environment: production
+      annotations:
+        monitoring: "true"
+    # specifications for the pod template
+    spec:
+      securityContext:
+        runAsUser: 33
+        runAsGroup: 33
+        runAsNonRoot: true
+        fsGroup: 33
+      containers:
+        - name: phpmyadmin
+          image: phpmyadmin:latest
+          imagePullPolicy: "IfNotPresent"
+
+#Environent variable are specific to conatiner/ structure is same
+          env:
+            - name: PMA_HOSTS
+              value: mysql:3306
+            - name: PMA_PORT
+              value: "3306"
+            - name: PMA_ARBITRARY
+              value: "1"
+            # - name: WORDPRESS_DB_NAME
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: mysqlconfig
+            #       key: DB_NAME
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: "TCP"
+          resources:
+            requests:
+              memory: "512Mi" #gebibytes
+              cpu: "250m" #m stand milliCPu
+            limits:
+              memory: "1Gi" #gebibytes
+              cpu: "500m" #m stand milliCPu
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30 #wait 30 seconds after container starts to start probing
+            periodSeconds: 10 #run the probe every 10 seconds thereafter
+            timeoutSeconds: 5 # Each probe must finish within 5 second, or counts as failed
+            failureThreshold: 3 #After 3 consecutive failures, container considered unhealthy and restarted
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 50 #wait 10 seconds after after container starts before probing
+            periodSeconds: 10 #run the probe every 10 seconds thereafter
+            timeoutSeconds: 5 # Each probe must finish within 5 second, or counts as failed
+            failureThreshold: 5 #After 3 consecutive failures, container considered unhealthy and restarted
+            

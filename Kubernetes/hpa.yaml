@@ -1,0 +1,27 @@
+#Horizontal Pod AutoScaler
+apiVersion: autoscaling/v2 
+kind: HorizontalPodAutoscaler
+metadata: 
+  name: mysql-hpa
+  namespace: default #avoid deploying in the wrong namespace
+  labels:
+    app: mysql
+    environment: production
+    tier: database
+    version: "8.0"
+  annotations:  #Annotations are longer labels
+    description: "MySQL Deploy HPA"
+spec:
+  scaleTargetRef: #what to scale"
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mysql-deployment
+  minReplicas: 1
+  maxReplicas: 3 #restrict number of container
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 20 #scale when cpu utilization at 20%
