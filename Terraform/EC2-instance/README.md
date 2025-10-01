@@ -1,5 +1,5 @@
 PROJECT OVERVIEW
-This Terraform project provisions a single AWS EC2 instance named example_instance. It includes basic infrastructure setup, security configuration, and automated provisioning of NGINX.
+- This Terraform project provisions a single AWS EC2 instance named example_instance. It includes basic infrastructure setup, security configuration, and automated provisioning of NGINX.
 
 FEATURES
 - Creates one (or 2 if uncomment the count line in main.tf and outputs.tf to select one or both instances's ip to be displayed) EC2 instance using the AWS provider
@@ -11,13 +11,13 @@ FEATURES
 - Start the NGINX service
 
 RESSOURCES CREATED
-aws_instance: EC2 instance with NGINX installed
-aws_security_group: Allows inbound SSH traffic on port 22
+- aws_instance: EC2 instance with NGINX installed
+- aws_security_group: Allows inbound SSH traffic on port 22
 
 USER DATA SCRIPT
-The EC2 instance runs the following commands on launch:
-sudo apt update -y
-sudo apt install -y nginx"
+- The EC2 instance runs the following commands on launch:
+- sudo apt update -y
+- sudo apt install -y nginx"
 
 UASAGE
 - Initialize Terraform: terraform init
