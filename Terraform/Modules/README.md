@@ -2,7 +2,7 @@ PROJECT OVERVIEW
 - Terraform project uses modules to provision a basic AWS infrastructure. It includes a VPC, subnet, route table, internet gateway, security group, and an EC2 instance configured to serve HTTP traffic via NGINX and allow SSH access.
   
 Architecture Summary
-<img width="218" height="116" alt="image" src="https://github.com/user-attachments/assets/250f03ec-7cb1-4278-bb39-56e8871b1050" />
+<img width="300" height="200" alt="image" src="https://github.com/user-attachments/assets/250f03ec-7cb1-4278-bb39-56e8871b1050" />
 
 Modules Used
 - vpc
