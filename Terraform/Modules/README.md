@@ -26,7 +26,7 @@ sudo apt update -y
 sudo apt install -y nginx
 
 FILES STRUCTURES
-<img width="188" height="227" alt="image" src="https://github.com/user-attachments/assets/6f71b2ad-ae0f-45e1-8e5a-1de70944afd4" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/6f71b2ad-ae0f-45e1-8e5a-1de70944afd4" />
 
 UASAGE
 Initialize Terraform: terraform init
