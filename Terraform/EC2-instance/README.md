@@ -18,6 +18,12 @@ USER DATA SCRIPT
 - The EC2 instance runs the following commands on launch:
 - sudo apt update -y
 - sudo apt install -y nginx"
+  
+Security Group Rules
+- Inbound:
+- Protocol: TCP
+- Port: 22
+- Source: 0.0.0.0/0 (for testing purposes, restrict in production)
 
 UASAGE
 - Initialize Terraform: terraform init
