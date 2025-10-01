@@ -1,22 +1,16 @@
 PROJECT OVERVIEW
 - Terraform project uses modules to provision a basic AWS infrastructure. It includes a VPC, subnet, route table, internet gateway, security group, and an EC2 instance configured to serve HTTP traffic via NGINX and allow SSH access.
+  
 Architecture Summary
-AWS Cloud
-└── VPC
-    ├── Subnet (Public)
-    │   └── EC2 Instance (NGINX)
-    ├── Internet Gateway
-    ├── Route Table
-    └── Security Group (Ports 22 & 80)
+<img width="218" height="116" alt="image" src="https://github.com/user-attachments/assets/250f03ec-7cb1-4278-bb39-56e8871b1050" />
 
 🔧 Modules Used
-|  |  | 
-| vpc |  | 
-| subnet |  | 
-| internet_gateway |  | 
-| route_table |  | 
-| security_group |  | 
-| ec2_instance |  | 
+- vpc
+- subnet
+- internet_gateway
+- route_table
+- security_group
+- ec2_instance 
 
 FEATURES
 - Modular design for reusability and clarity
@@ -31,23 +25,9 @@ The instance runs:
 sudo apt update -y
 sudo apt install -y nginx
 
-
 FILES STRUCTURES
-terraform-project/
-├── main.tf
-├── variables.tf
-├── modules/
-|   ├── ec2-instances/
-    |   ├── main.tf
-    |   ├── variables.tf
-    |   ├── outputs.tf
-    ├── VPC Modules/
-    |   ├── main.tf
-        |   ├── vpc
-        │   ├── subnet
-        │   ├── internet_gateway
-        │   ├── route_table
-        │   ├── security_group
+<img width="188" height="227" alt="image" src="https://github.com/user-attachments/assets/6f71b2ad-ae0f-45e1-8e5a-1de70944afd4" />
+
 
 UASAGE
 Initialize Terraform: terraform init
